@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#080d17"
+    android:paddingTop="6dp"
+    android:paddingLeft="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/tv_main2_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="天津武警医院"
+        android:textSize="18sp"
+        android:textColor="#39abe9"
+        android:layout_centerHorizontal="true"/>
+
+
+    <ImageView
+        android:id="@+id/iv_main2_line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/white"
+        android:alpha="0.2"
+        android:layout_below="@+id/tv_main2_title"
+        android:layout_marginTop="4dp"/>
+
+    <ImageView
+        android:id="@+id/iv_main2_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/main2_logo"
+        android:layout_below="@id/iv_main2_line"
+        android:layout_marginTop="30dp"
+       />
+
+    <ImageView
+        android:id="@+id/iv_main2_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/main2_info"
+        android:layout_alignTop="@+id/main2GraphLayout"
+        android:layout_below="@id/iv_main2_logo"
+        android:layout_alignLeft="@id/iv_main2_logo"
+        android:layout_marginLeft="10dp"/>
+
+    <ImageView
+        android:id="@+id/iv_main2_heart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/main2_parameter"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/iv_main2_line" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignLeft="@id/iv_main2_heart"
+            android:layout_marginTop="280dp">
+
+        <TextView
+            android:id="@+id/tv_electricity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.6"
+            android:text="99.99"
+            android:lines="1"
+            android:textSize="40sp"
+            android:textColor="#6ec6f6"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginLeft="10dp"
+            />
+
+            <EditText
+                android:id="@+id/et_inputElectricity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:lines="1"
+                android:textSize="28sp"
+                android:inputType="numberDecimal"
+                android:textColor="#6ec6f6"
+                android:background="@android:color/white"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                />
+        </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignLeft="@id/iv_main2_heart"
+        android:layout_marginTop="420dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_voltage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.6"
+            android:text="9.99"
+            android:lines="1"
+            android:textSize="40sp"
+            android:textColor="#6ec6f6"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginLeft="10dp"
+            />
+
+        <EditText
+            android:id="@+id/et_inputVoltage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:lines="1"
+            android:textSize="28sp"
+            android:inputType="numberDecimal"
+            android:textColor="#6ec6f6"
+            android:background="@android:color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignLeft="@id/iv_main2_heart"
+        android:layout_marginTop="550dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_coulomb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.6"
+            android:text="999.999"
+            android:lines="1"
+            android:textSize="40sp"
+            android:textColor="#6ec6f6"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginLeft="10dp"
+            />
+
+        <EditText
+            android:id="@+id/et_inputCoulomb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:lines="1"
+            android:textSize="28sp"
+            android:inputType="numberDecimal"
+            android:textColor="#6ec6f6"
+            android:background="@android:color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            />
+    </LinearLayout>
+
+        <EditText
+            android:id="@+id/et_electricityRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/iv_main2_heart"
+            android:layout_marginTop="640dp"
+            android:inputType="numberDecimal"
+            android:textColor="#6ec6f6"
+            android:background="@android:color/white"
+            android:hint="9.999"
+            android:lines="1"
+            android:textSize="40sp"
+            android:layout_marginLeft="120dp"/>
+
+
+
+
+    <ImageView
+        android:id="@+id/iv_main2_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/main2_title"
+        android:layout_below="@id/iv_main2_line"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"/>
+
+    <LinearLayout
+        android:id="@+id/main2GraphLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="50dp"
+        android:layout_toLeftOf="@id/iv_main2_heart"
+        android:layout_toRightOf="@id/iv_main2_info"
+        android:layout_below="@id/iv_main2_title"
+        android:background="@android:color/transparent"
+        >
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_electricity"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_voltage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4">
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_coulomb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"
+                />
+        <LinearLayout
+            android:id="@+id/historicalHideLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="电量消耗(库伦c)"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:layout_alignBaseline="@+id/textView"
+                android:layout_alignBottom="@+id/textView"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="250c"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:id="@+id/textView" />
+        </RelativeLayout>
+
+        <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
+            android:id="@+id/progress_coulomb"
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            app:rcMax="2500"
+            app:rcRadius="4dp"
+            app:rcProgressColor="#981cbe"
+            app:rcBackgroundColor="@android:color/darker_gray"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.6"
+            android:layout_marginTop="30dp">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@drawable/btn_shape1"
+                android:text="病例设置"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+
+            <Button
+                android:id="@+id/btn_playback"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@drawable/btn_shape2"
+                android:text="治疗历史"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <Button
+                android:id="@+id/btn_switch"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@drawable/btn_shape3"
+                android:text="治疗"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                />
+        </LinearLayout>
+        </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/historicalButtonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/iv_main2_info"
+        android:layout_alignRight="@id/iv_main2_info"
+        android:layout_alignBottom="@id/iv_main2_heart"
+        android:visibility="gone">
+
+    <Button
+        android:id="@+id/btn_exitHistorical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="退出"
+        android:textSize="16sp"
+        android:background="@drawable/btn_shape4"
+        android:textColor="@android:color/white"
+        />
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/btn_selectHistorical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="选择"
+            android:textSize="16sp"
+            android:background="@drawable/btn_shape5"
+            android:textColor="@android:color/white"
+            />
+
+    </LinearLayout>
+   </RelativeLayout>
