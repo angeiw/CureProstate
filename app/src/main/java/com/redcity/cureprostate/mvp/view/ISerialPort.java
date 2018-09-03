@@ -20,5 +20,5 @@ public interface ISerialPort {
     void receive(short voltage,short electricity,int coulomb,short time);
     void stopCure();
     void finishCure();
-
+    void sendThread();
 }

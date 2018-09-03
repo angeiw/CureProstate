@@ -1,6 +1,9 @@
 package com.redcity.cureprostate.mvp.presenter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import com.redcity.cureprostate.util.ByteUtils;
@@ -30,6 +33,12 @@ public class SerialPortPresenter {
         manager = new SerialPortManager(context);
         this.iSerialPort = iSerialPort;
     }
+
+    public void sendThreadOK(){
+        Log.d(TAG,"sendThread already");
+        iSerialPort.sendThread();
+    }
+
 
     // check USB host function.
     public void checkUSB(){
@@ -83,7 +92,7 @@ public class SerialPortPresenter {
     int off = 0;
     int count;
     receiveListern receiveListern;
-    public  void receiveData(final boolean isSerial) {
+    public  void receiveData(Handler sendHandler) {
 
                 while (true){
                     try {
@@ -95,17 +104,33 @@ public class SerialPortPresenter {
                      data = manager.readDataFromSerial();
                      Log.w(TAG,Arrays.toString(data));
                     if (data != null){//分析接受到的数据
-                        if (receiveListern != null)
-                            receiveListern.returnCommd(data[3]);
+//                        if (receiveListern != null)
+//                            receiveListern.returnCommd(data[3]);
                         Log.w(TAG,"data != null....."+Arrays.toString(data));
-
+//                        Log.d(TAG,"msg.....order..."+order);
                         processData(data);
+//                        Message message = new Message();
+//                        message.what = 0;
+//                        message.arg1 = data[3];
+//                        sendHandler.sendMessage(message);
+                        sendHandler.sendEmptyMessage(data[3]);
 //                        FIFOData.add(data);
                     }
                     else{//数据是空
-
+                        sendHandler.sendEmptyMessage((byte) 0x80);
                     }
                 }
+
+//        Looper.prepare();
+//        receiveHandler = new Handler(){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                Log.d(TAG,"receiveHandler："+"msg....."+ msg.what);
+//
+//
+//            }
+//        };
+//        Looper.loop();
 //                if (isSerial){
 //                    data = manager.readDataFromSerial();
 //                    Log.d(TAG,"串口接收数据..."+ Arrays.toString(data));
@@ -152,9 +177,9 @@ public class SerialPortPresenter {
                 short time = ByteUtils.byte2Short(ByteUtils.getBytes(data,14,15));
                 Log.d(TAG,"voltage..."+voltage+"...electricity..."+electricity+"....coulomb...."+coulomb+"....time..."+time);
                 iSerialPort.receive(voltage,electricity,coulomb,time);
-//                                byte[] dst = new byte[20];
-//                               System.arraycopy(data,0,dst,0,20);
-//                                manager.writeDataToLocal(dst);
+                                byte[] dst = new byte[20];
+                               System.arraycopy(data,0,dst,0,20);
+                                manager.writeDataToLocal(dst);
             }else if (data[3] == (byte)0x04 && data[4] == (byte)0x00){//停止
                 iSerialPort.stopCure();
             }else if (data[3] == (byte)0x06 && data[4] == (byte)0x00){//设置参数成功，可以开始治疗
@@ -187,6 +212,10 @@ public class SerialPortPresenter {
 
     public JSONArray readFile() throws JSONException {
         return manager.readFile();
+    }
+
+    public byte[] readFileTest(int off){
+        return manager.readDataFromLocal(off);
     }
 
     public void finishCure(){

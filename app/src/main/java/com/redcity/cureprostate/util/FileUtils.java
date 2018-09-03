@@ -38,6 +38,7 @@ public class FileUtils {
     public static String maxElectricity;
     public static String maxVoltage;
     public static String maxCoulomb;
+    public static String ElectricityRate;
 
 
     /**
@@ -133,7 +134,7 @@ public class FileUtils {
                 Log.v(TAG,DayDirPath + " 文件夹创建isOk" + isOk);
             }
         }
-        final String filePath = DayDirPath+calendar.get(Calendar.HOUR_OF_DAY)+"H"+calendar.get(Calendar.MINUTE)+"_"+maxElectricity+"_"+maxVoltage+"_"+maxCoulomb+".txt";
+        final String filePath = DayDirPath+calendar.get(Calendar.HOUR_OF_DAY)+"H"+calendar.get(Calendar.MINUTE)+"_"+maxElectricity+"_"+maxVoltage+"_"+maxCoulomb+"_"+ElectricityRate+".txt";
         currentFile = new File(filePath);
         if (!currentFile.exists()){
             try {
@@ -463,5 +464,20 @@ public class FileUtils {
         }
         return fileSizeString;
     }
+
+
+    /*
+ * Java文件操作 获取不带扩展名的文件名
+ * */
+    public static String getFileNameNoEx(String filename) {
+        if ((filename != null) && (filename.length() > 0)) {
+            int dot = filename.lastIndexOf('.');
+            if ((dot >-1) && (dot < (filename.length()))) {
+                return filename.substring(0, dot);
+            }
+        }
+        return filename;
+    }
+
 
 }

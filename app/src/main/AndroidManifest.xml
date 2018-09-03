@@ -3,7 +3,9 @@
     package="com.redcity.cureprostate"
     android:installLocation="internalOnly">
 
-    <uses-feature android:name="android.hardware.usb.host"/>
+    <uses-feature android:name="android.hardware.usb.host"
+        android:required="true"
+       />
 
     <application
         android:name=".app.MyApp"
@@ -23,7 +25,8 @@
         </receiver>
 
         <activity android:name=".activity.SerialPortActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden|stateUnchanged" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

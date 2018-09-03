@@ -180,9 +180,6 @@
             android:textSize="40sp"
             android:layout_marginLeft="120dp"/>
 
-
-
-
     <ImageView
         android:id="@+id/iv_main2_title"
         android:layout_width="wrap_content"
@@ -243,19 +240,17 @@
                 android:text="电量消耗(库伦c)"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:layout_alignBaseline="@+id/textView"
-                android:layout_alignBottom="@+id/textView"
-                android:layout_alignParentStart="true" />
+                android:layout_centerVertical="true" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="250c"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:id="@+id/textView" />
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="250c"-->
+                <!--android:textColor="@android:color/white"-->
+                <!--android:textSize="20sp"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:id="@+id/textView" />-->
         </RelativeLayout>
 
         <com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar
@@ -263,7 +258,6 @@
             android:layout_height="0dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            app:rcMax="2500"
             app:rcRadius="4dp"
             app:rcProgressColor="#981cbe"
             app:rcBackgroundColor="@android:color/darker_gray"

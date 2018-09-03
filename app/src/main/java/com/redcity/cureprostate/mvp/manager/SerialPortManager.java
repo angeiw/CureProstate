@@ -199,12 +199,12 @@ public class SerialPortManager {
      */
     public JSONArray readFile() throws JSONException {
         boolean isRead = true;
-        int i = 0;
         JSONArray fileArray = new JSONArray();
-        while(isRead){
-            Log.d(TAG,"readFile...i..."+i);
-            byte[] data = FileUtils.readToSDCard(i);//20条数据
-            Log.d(TAG,"readFile..."+ Arrays.toString(data));
+        long le = FileUtils.currentFile.length();
+        int i = 0;
+        while(le - (i*20) != 0){
+            byte[] data = FileUtils.readToSDCard(i);
+            Log.d(TAG,"readLocalThread...."+ Arrays.toString(data));
             if (data[0] == -6){
                 if (data[3] == 5 && data[4] == 11){//接收数据
                     if (data[5] == 15 || data[5] == 16){
@@ -224,6 +224,30 @@ public class SerialPortManager {
             }
             i++;
         }
+//        while(isRead){
+////            Log.d(TAG,"readFile...i..."+i);
+//            byte[] data = FileUtils.readToSDCard(i);//20条数据
+//            Log.d(TAG,"readFile...data..."+Arrays.toString(data));
+////            Log.d(TAG,"readFile..."+ Arrays.toString(data));
+//            if (data[0] == -6){
+//                if (data[3] == 5 && data[4] == 11){//接收数据
+//                    if (data[5] == 15 || data[5] == 16){
+//                        isRead = false;
+//                    }
+//                    short voltage = ByteUtils.byte2Short(ByteUtils.getBytes(data,6,7));
+//                    short electricity = ByteUtils.byte2Short(ByteUtils.getBytes(data,8,9));
+//                    int coulomb = ByteUtils.bytes2Int(ByteUtils.getBytes(data,10,13));
+//                    short time = ByteUtils.byte2Short(ByteUtils.getBytes(data,14,15));
+//                    JSONObject jsonData = new JSONObject();
+//                    jsonData.put("voltage",voltage);
+//                    jsonData.put("electricity",electricity);
+//                    jsonData.put("coulomb",coulomb);
+//                    jsonData.put("time",time);
+//                    fileArray.put(jsonData);
+//                }
+//            }
+//            i++;
+//        }
         return fileArray;
     }
 

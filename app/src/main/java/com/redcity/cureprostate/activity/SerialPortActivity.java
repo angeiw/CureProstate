@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -32,13 +33,24 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.redcity.cureprostate.Protocol;
 import com.redcity.cureprostate.R;
+import com.redcity.cureprostate.mvp.presenter.SerialPortPresenter;
 import com.redcity.cureprostate.mvp.view.ISerialPort;
+import com.redcity.cureprostate.service.IReadLocalCallBack;
 import com.redcity.cureprostate.service.IService;
+import com.redcity.cureprostate.service.ReadLocalThread;
+import com.redcity.cureprostate.service.SendThread;
 import com.redcity.cureprostate.service.SerialPortService;
 import com.redcity.cureprostate.util.Constant;
+import com.redcity.cureprostate.util.FileUtils;
 import com.redcity.cureprostate.vo.ParamVo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,7 +61,7 @@ import butterknife.Unbinder;
  * Created by COREIGHT-101 on 2018/8/20.
  */
 
-public class SerialPortActivity extends Activity {
+public class SerialPortActivity extends Activity implements ISerialPort{
 
     private final String TAG = SerialPortActivity.class.getSimpleName();
     Unbinder unbinder;
@@ -67,13 +79,15 @@ public class SerialPortActivity extends Activity {
     @Nullable@BindView(R.id.progress_coulomb) RoundCornerProgressBar progress_coulomb;
     @Nullable@BindView(R.id.btn_switch) Button btn_switch;
     @Nullable@BindView(R.id.historicalButtonLayout) LinearLayout historicalButtonLayout;
-
+    private SerialPortPresenter mSerialPortPresenter;
     Intent intent;
     boolean isStart = false;
     IService iService;
     UIBroadcastReceiver UIreceiver;
     private LFilePicker filePicker;
     int REQUESTCODE_FROM_ACTIVITY = 1000;
+    ReceiveThread receiveThread;
+    SendThread sendThread;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +95,8 @@ public class SerialPortActivity extends Activity {
         unbinder = ButterKnife.bind(this);
         intent = new Intent(this, SerialPortService.class);
         bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+        mSerialPortPresenter = new SerialPortPresenter(this,this);
+        mSerialPortPresenter.checkUSB();
 
         initChart(chart_electricity,null,"E");
         initChart(chart_voltage,null,"V");
@@ -98,6 +114,74 @@ public class SerialPortActivity extends Activity {
                 .withMutilyMode(false)
                 .withFileFilter(new String[]{".dat",".txt"});
 
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSerialPortPresenter.checkConnected();
+//        iService.checkConnected();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUESTCODE_FROM_ACTIVITY) {
+
+                //If it is a file selection mode, you need to get the path collection of all the files selected
+                //List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);//Constant.RESULT_INFO == "paths"
+                List<String> list = data.getStringArrayListExtra("paths");
+                Log.d(TAG,"list....."+list.toString());
+                FileUtils.currentFile =  new File(list.get(0));
+                historyView();
+                ReadLocalThread readLocalThread = new ReadLocalThread(new IReadLocalCallBack() {
+                    @Override
+                    public void callBack(final JSONArray jsonArray) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                historicalData(jsonArray);
+                            }
+                        });
+                    }
+                });
+                readLocalThread.start();
+            }
+        }
+    }
+
+        private void historicalData(JSONArray jsonArray){
+            Log.d(TAG,"local...."+ jsonArray.toString());
+        try {
+//            JSONArray jsonArray = mSerialPortPresenter.readFile();
+            ArrayList<Entry> voltageValues = new ArrayList<>();
+            ArrayList<Entry> electricityValues = new ArrayList<>();
+            ArrayList<Entry> coulombValues = new ArrayList<>();
+            for (int i = 0;i<jsonArray.length();i++){
+                Log.d(TAG,Float.valueOf(jsonArray.getJSONObject(i).get("voltage").toString())/100+"..V");
+                Log.d(TAG,Float.valueOf(jsonArray.getJSONObject(i).get("electricity").toString())/100+"..E");
+                Log.d(TAG,Integer.valueOf(jsonArray.getJSONObject(i).get("coulomb").toString())/1000+"..C");
+                voltageValues.add(new Entry(i,  Float.valueOf(jsonArray.getJSONObject(i).get("voltage").toString())/100, 0));
+                electricityValues.add(new Entry(i,  Float.valueOf(jsonArray.getJSONObject(i).get("electricity").toString())/100, 0));
+                coulombValues.add(new Entry(i,  Float.valueOf(jsonArray.getJSONObject(i).get("coulomb").toString())/100, 0));
+            }
+            tv_electricity.setText(Float.valueOf(jsonArray.getJSONObject(jsonArray.length()-1).get("electricity").toString())/100+"");
+            tv_voltage.setText(Float.valueOf(jsonArray.getJSONObject(jsonArray.length()-1).get("voltage").toString())/100+"");
+            tv_coulomb.setText(Float.valueOf(jsonArray.getJSONObject(jsonArray.length()-1).get("coulomb").toString())/1000+"");
+            Log.d(TAG,"currentFile...name..."+FileUtils.currentFile.getName());
+            String[] maxStr = FileUtils.getFileNameNoEx(FileUtils.currentFile.getName()).split("_");
+            inputElectricity.setText(maxStr[1]);
+            inputVoltage.setText(maxStr[2]);
+            inputCoulomb.setText(maxStr[3]);
+            inputElectricityRate.setText(maxStr[4]);
+            initChart(chart_electricity,electricityValues,"E");
+            initChart(chart_voltage,voltageValues,"V");
+            initChart(chart_coulomb,coulombValues,"C");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -225,19 +309,26 @@ public class SerialPortActivity extends Activity {
             return;
         }
         //显示已有数据的列表,将currentFile更改为选中的文件
-
         filePicker.start();
-
-
     }
 
-
+        @OnClick(R.id.btn_selectHistorical)
+    public void btn_selectHistorical(View view){
+        filePicker.start();
+    }
+        @OnClick(R.id.btn_exitHistorical)
+    public void btn_exitHistorical(View view){
+        cureView();
+        clear();
+    }
 
     @OnClick(R.id.btn_switch)
     void btn_switch(View view){
         if (!isStart){
             if (TextUtils.isEmpty(inputElectricity.getText().toString())||TextUtils.isEmpty(inputVoltage.getText().toString())||TextUtils.isEmpty(inputCoulomb.getText().toString())||TextUtils.isEmpty(inputElectricityRate.getText().toString())){
-                iService.sendData(Protocol.UTRS_READ_CURE_PARAMETER,null);//获取参数
+                ParamVo vo = new ParamVo();
+                vo.order = Protocol.UTRS_READ_CURE_PARAMETER;
+                iService.sendData(sendThread.getSendHandler(),vo);//获取参数
             }else{
                 short electricityParamer = (short) (Float.valueOf(inputElectricity.getText().toString()) * 100);
                 short voltageParamer = (short) (Float.valueOf(inputVoltage.getText().toString()) * 100);
@@ -245,15 +336,18 @@ public class SerialPortActivity extends Activity {
                 short electricityRateParamer = (short) (Float.valueOf(inputElectricityRate.getText().toString()) * 1000);
                 if (iService.verifyParameter(electricityParamer,voltageParamer,coulombParamer,electricityRateParamer)){
                     ParamVo paramVo = new ParamVo();
+                    paramVo.order = Protocol.UTRS_WRITE_CURE_PARAMETER;
                     paramVo.electricityParamer =electricityParamer;
                     paramVo.voltageParamer = voltageParamer;
                     paramVo.coulombParamer = coulombParamer;
                     paramVo.electricityRateParamer = electricityRateParamer;
-                    iService.sendData(Protocol.UTRS_WRITE_CURE_PARAMETER,paramVo);//设置参数
+                    iService.sendData(sendThread.getSendHandler(),paramVo);//设置参数
                 }
             }
         }else{
-            iService.sendData(Protocol.UTRS_WRITE_END_CURE,null);
+            ParamVo vo = new ParamVo();
+            vo.order = Protocol.UTRS_WRITE_END_CURE;
+            iService.sendData(sendThread.getSendHandler(),vo);
         }
     }
 
@@ -275,7 +369,7 @@ public class SerialPortActivity extends Activity {
             // let the chart know it's data has changed
             mChart.notifyDataSetChanged();
 
-            mChart.setVisibleXRangeMaximum(50);
+            mChart.setVisibleXRangeMaximum(100);
             // move to the latest entry
             Log.d(TAG,"getEntryCount...."+data.getEntryCount());
             mChart.moveViewToX(data.getEntryCount());
@@ -301,6 +395,132 @@ public class SerialPortActivity extends Activity {
         return set;
     }
 
+    @Override
+    public void noSupport() {
+        Toast.makeText(this, "No Support USB host API", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void noConnected() {
+        Toast.makeText(this, "no connected", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void noMoreDevices() {
+        Toast.makeText(this, "no more devices found", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void attached() {
+        Toast.makeText(this, "attached", Toast.LENGTH_SHORT).show();
+        mSerialPortPresenter.openUsbSerial();
+    }
+
+    @Override
+    public void noPermission() {
+        Toast.makeText(this, "cannot open, maybe no permission", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void chipNoSupport() {
+        Toast.makeText(this, "cannot open, maybe this chip has no support, please use PL2303HXD / RA / EA chip.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void connected() {
+        Toast.makeText(this, "connected : " , Toast.LENGTH_SHORT).show();
+
+        if (sendThread != null && sendThread.isAlive()){
+            sendThread.interrupt();
+            sendThread = null;
+        }
+        sendThread = new SendThread(mSerialPortPresenter);
+        sendThread.start();
+    }
+
+    @Override
+    public void sendFailed() {
+
+    }
+
+    @Override
+    public void writeParameter() {
+        Intent intent = new Intent(Constant.writeParameterAction);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void readParameter(float V, float E, float C, float ER) {
+        Intent intent = new Intent(Constant.readParameterAction);
+        intent.putExtra("V",V);
+        intent.putExtra("E",E);
+        intent.putExtra("C",C);
+        intent.putExtra("ER",ER);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void startCure() {
+        FileUtils.initCacheFile(this);//
+        Intent intent = new Intent(Constant.startCureAction);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void receive(short voltage, short electricity, int coulomb, short time) {
+        Intent intent = new Intent(Constant.receiveDataAction);
+        intent.putExtra("voltage",((float)voltage/100));
+        intent.putExtra("electricity",((float)electricity/100));
+        intent.putExtra("coulomb",((float)coulomb/1000));
+        intent.putExtra("coulombProgress",(coulomb/100));
+        Log.d(TAG,"receive...coulombProgress..."+coulomb);
+        intent.putExtra("time",time);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void stopCure() {
+        Intent intent = new Intent(Constant.stopCureAction);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void finishCure() {
+        Intent intent = new Intent(Constant.finishCureAction);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void sendThread() {
+        if (receiveThread != null && receiveThread.isAlive()){
+            receiveThread.interrupt();
+            receiveThread = null;
+        }
+        receiveThread = new ReceiveThread(sendThread.getSendHandler());
+        receiveThread.start();
+    }
+
+    class ReceiveThread extends Thread{
+        Handler sendHandler;
+        ReceiveThread(Handler handler){
+            sendHandler = handler;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            mSerialPortPresenter.receiveData(sendHandler);
+        }
+    }
+
+//    class ProcessThread extends Thread{
+//        @Override
+//        public void run() {
+//            super.run();
+//            mSerialPortPresenter.processData();
+//        }
+//    }
+
     class UIBroadcastReceiver extends BroadcastReceiver{
 
         @Override
@@ -317,11 +537,25 @@ public class SerialPortActivity extends Activity {
                 inputVoltage.setText(intent.getFloatExtra("V",-1)+"");
                 inputCoulomb.setText(intent.getFloatExtra("C",-1)+"");
                 inputElectricityRate.setText(intent.getFloatExtra("ER",-1)+"");
-                iService.sendData(Protocol.UTRS_WRITE_START_CURE,null);
+                progress_coulomb.setMax(intent.getFloatExtra("C",-1));
+                FileUtils.maxElectricity = inputElectricity.getText().toString();
+                FileUtils.maxVoltage = inputVoltage.getText().toString();
+                FileUtils.maxCoulomb = inputCoulomb.getText().toString();
+                FileUtils.ElectricityRate = inputElectricityRate.getText().toString();
+                ParamVo vo = new ParamVo();
+                vo.order = Protocol.UTRS_WRITE_START_CURE;
+                iService.sendData(sendThread.getSendHandler(),vo);
 
             }
             else if (action.equals(Constant.writeParameterAction)){
-                iService.sendData(Protocol.UTRS_WRITE_START_CURE,null);
+                progress_coulomb.setMax(Float.valueOf(inputCoulomb.getText().toString()));
+                FileUtils.maxElectricity = inputElectricity.getText().toString();
+                FileUtils.maxVoltage = inputVoltage.getText().toString();
+                FileUtils.maxCoulomb = inputCoulomb.getText().toString();
+                FileUtils.ElectricityRate = inputElectricityRate.getText().toString();
+                ParamVo vo = new ParamVo();
+                vo.order = Protocol.UTRS_WRITE_START_CURE;
+                iService.sendData(sendThread.getSendHandler(),vo);
             }
             else if (action.equals(Constant.receiveDataAction)){
 //                isStart = true;
@@ -369,6 +603,36 @@ public class SerialPortActivity extends Activity {
         tv_voltage.setText("9.99");
         tv_coulomb.setText("999.999");
 
+    }
+
+        private void cureView(){
+        inputElectricity.setEnabled(true);
+        inputVoltage.setEnabled(true);
+        inputCoulomb.setEnabled(true);
+        inputElectricityRate.setEnabled(true);
+        chart_coulomb.setVisibility(View.GONE);
+        historicalButtonLayout.setVisibility(View.GONE);
+        historicalHideLayout.setVisibility(View.VISIBLE);
+        inputElectricity.setText("");
+        inputVoltage.setText("");
+        inputCoulomb.setText("");
+        inputElectricityRate.setText("");
+        tv_electricity.setText("99.99");
+        tv_voltage.setText("9.99");
+        tv_coulomb.setText("999.999");
+
+    }
+
+
+
+        private void historyView(){
+        historicalHideLayout.setVisibility(View.GONE);
+        chart_coulomb.setVisibility(View.VISIBLE);
+        historicalButtonLayout.setVisibility(View.VISIBLE);
+        inputElectricity.setEnabled(false);
+        inputVoltage.setEnabled(false);
+        inputCoulomb.setEnabled(false);
+        inputElectricityRate.setEnabled(false);
     }
 
     private void clear(){
